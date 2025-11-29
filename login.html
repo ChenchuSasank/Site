@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background: #eef2f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 350px;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #2c3e50;
+        }
+
+        input {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 95%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            font-size: 17px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+        }
+
+        button:hover {
+            background: #0056b3;
+        }
+
+        .link {
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .link a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+    </style>
+
+</head>
+<body>
+
+    <div class="container">
+        <h2>Login</h2>
+
+        <form action="#">
+            <input id="email" type="email" placeholder="Email" required>
+            <input id="password" type="password" placeholder="Password" required>
+
+            <button class="login-btn" type="button" onclick="login()">Login</button>
+
+            <div class="link">
+                Don’t have an account? <a href="signup.html">Sign Up</a>
+            </div>
+        </form>
+    </div>
+
+<!-- <script>
+    function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+        alert("Enter all fields");
+        return;
+    }
+
+    const user = validateLogin(email, password);
+
+    if (user) {
+        localStorage.setItem("loggedUser", JSON.stringify(user));
+        alert("Login Successful!");
+        window.location.href = "app.html";
+    } else {
+        alert("Incorrect Email or Password!");
+    }
+}
+</script> -->
+
+<script>
+
+// Auto login check
+if (localStorage.getItem("isLoggedIn") === "true") {
+    window.location.href = "app.html";
+}
+
+function login() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (!email || !password) {
+        alert("Please enter all fields");
+        return;
+    }
+
+    // Get saved user account from localStorage
+    const savedUser = JSON.parse(localStorage.getItem("userAccount"));
+
+    if (!savedUser) {
+        alert("No account found. Please Sign Up first.");
+        return;
+    }
+
+    // Validate login
+    if (email === savedUser.email && password === savedUser.password) {
+        localStorage.setItem("isLoggedIn", "true");
+        localStorage.setItem("loggedUser", JSON.stringify(savedUser));
+
+        alert("Login Successful!");
+        window.location.href = "app.html";  // Go to your next page
+    } else {
+        alert("Incorrect Email or Password!");
+    }
+}
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,624 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Site Enquiry — Upload & Quote</title>
+<!-- jsPDF & html2canvas from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js">
+</script>
+
+<script>
+    emailjs.init("IqzKLm7Md6MJmBxus");
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+  :root{
+    --accent:#0b74ff;
+    --muted:#666;
+    --card:#ffffff;
+    --bg:#f6f8fb;
+    --max-width:1000px;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:#111;}
+  .container{max-width:var(--max-width);margin:28px auto;padding:20px;}
+  header{display:flex;gap:20px;align-items:center;margin-bottom:18px;}
+  .logo{width:64px;height:64px;background:linear-gradient(135deg,var(--accent),#00c6ff);border-radius:12px;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:0 6px 18px rgba(11,116,255,0.14);}
+  .title h1{margin:0;font-size:20px;}
+  .title p{margin:4px 0 0;color:var(--muted);font-size:14px;}
+  main{display:grid;grid-template-columns:1fr 460px;gap:20px;}
+  @media (max-width:980px){ main{grid-template-columns:1fr;}}
+  .card{background:var(--card);border-radius:12px;padding:18px;box-shadow:0 6px 18px rgba(15,15,15,0.06);}
+  .hero h2{margin-top:0;font-size:20px;}
+  .hero p{color:var(--muted);line-height:1.4;}
+  form{display:grid;gap:12px;}
+  label{font-size:13px;color:#222;font-weight:600;margin-bottom:6px;display:block;}
+  input[type="text"], input[type="email"], input[type="number"], textarea, select {
+    width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef;background:#fff;font-size:14px;
+  }
+  .flex{display:flex;gap:10px;}
+  .col{flex:1;}
+  .images-preview{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+  .img-thumb{width:86px;height:86px;border-radius:8px;background:#f2f4f7;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;border:1px solid #e9eef7;}
+  .img-thumb img{width:100%;height:100%;object-fit:cover;}
+  .img-thumb .remove{position:absolute;top:6px;right:6px;background:rgba(0,0,0,0.6);color:white;border-radius:50%;width:20px;height:20px;font-size:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+  .note{font-size:13px;color:var(--muted);}
+  .actions{display:flex;gap:8px;align-items:center;margin-top:10px;}
+  button{background:var(--accent);color:white;padding:10px 14px;border-radius:8px;border:0;font-weight:700;cursor:pointer;}
+  button.secondary{background:#fff;color:var(--accent);border:1px solid #e6eef7;}
+  .error{color:#b00020;font-size:13px;margin-top:6px;}
+  .success{color:green;font-size:14px;margin-top:6px;}
+  .small{font-size:13px;color:var(--muted);}
+  footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px;}
+  /* PDF preview card */
+  .pdf-card .meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .field-row{display:flex;gap:8px;align-items:center;}
+  .field-row b{min-width:110px;display:inline-block;color:#333;}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  @media (max-width:600px){.form-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="title">
+      <h1 style="text-align: center;">Site Enquiry </h1>
+      <p>Upload images, share location, get a PDF report with measurements & cost estimate.</p>
+    </div>
+  </header>
+
+  <main>
+    <!-- Left: hero + explanation -->
+    <section class="card hero">
+
+      <hr style="border:none;height:1px;background:#f0f2f6;margin:16px 0;">
+      
+      <form id="enquiryForm" class="card" autocomplete="off" novalidate>
+        <h3 style="margin-top:0">Submit a Site Enquiry</h3>
+
+        <div class="form-grid">
+          <div>
+            <label for="customerName">Full name *</label>
+            <input id="customerName" name="customerName" type="text" placeholder="Eg. Rajesh Kumar" required />
+            <div class="error" id="err-customerName"></div>
+          </div>
+          <div>
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" placeholder="name@example.com" required />
+            <div class="error" id="err-email"></div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label for="phone">Phone *</label>
+            <input id="phone" name="phone" type="text" placeholder="+91 98765 43210" required />
+            <div class="error" id="err-phone"></div>
+          </div>
+          <div>
+            <label for="estimatedCost">Estimated cost (optional)</label>
+            <input id="estimatedCost" name="estimatedCost" type="number" step="0.01" placeholder="e.g. 12500" />
+            <div class="note small">Currency as per your preference — used only for reports.</div>
+          </div>
+        </div>
+
+        <label for="address_line1">Address *</label>
+        <input id="address_line1" name="address_line1" type="text" placeholder="Address line 1" required />
+        <div class="error" id="err-address_line1"></div>
+
+        <div class="form-grid">
+          <div>
+            <label for="city">City *</label>
+            <input id="city" name="city" type="text" required />
+            <div class="error" id="err-city"></div>
+          </div>
+          <div>
+            <label for="state">State / Province *</label>
+            <input id="state" name="state" type="text" required />
+            <div class="error" id="err-state"></div>
+          </div>
+        </div>
+
+        <div class="form-grid">
+          <div>
+            <label for="postalCode">Postal code *</label>
+            <input id="postalCode" name="postalCode" type="text" required />
+            <div class="error" id="err-postalCode"></div>
+          </div>
+          <div>
+            <label for="country">Country *</label>
+            <input id="country" name="country" type="text" required />
+            <div class="error" id="err-country"></div>
+          </div>
+        </div>
+
+        <div style="margin-top:8px;">
+          <label>Optional: location (latitude, longitude)</label>
+          <div class="flex">
+            <input id="latitude" name="latitude" type="text" placeholder="12.9716" class="col"/>
+            <input id="longitude" name="longitude" type="text" placeholder="77.5946" class="col"/>
+          </div>
+          <div class="small note">If you allow location in browser we can fill these automatically (not implemented here).</div>
+        </div>
+
+        <hr style="border:none;height:1px;background:#f0f2f6;margin:12px 0;">
+
+        <label>Measurements (numbers only)</label>
+        <div class="form-grid">
+          <div>
+            <label for="length">Length *</label>
+            <input id="length" name="length" type="number" step="0.01" placeholder="e.g. 3.5" required />
+            <div class="error" id="err-length"></div>
+          </div>
+          <div>
+            <label for="width">Width *</label>
+            <input id="width" name="width" type="number" step="0.01" placeholder="e.g. 2.0" required />
+            <div class="error" id="err-width"></div>
+          </div>
+        </div>
+
+        <div class="form-grid" style="margin-top:6px;">
+          <div>
+            <label for="height">Height</label>
+            <input id="height" name="height" type="number" step="0.01" placeholder="optional" />
+          </div>
+          <div>
+            <label for="units">Units</label>
+            <select id="units" name="units">
+              <option value="m">m</option>
+              <option value="cm">cm</option>
+              <option value="mm">mm</option>
+              <option value="in">in</option>
+            </select>
+          </div>
+        </div>
+
+        <label for="notes">Notes (optional)</label>
+        <textarea id="notes" name="notes" rows="3" maxlength="2000" placeholder="Any details you want the team to know"></textarea>
+
+        <label for="images">Site images (1–10) *</label>
+        <input id="images" name="images" type="file" accept="image/png,image/jpeg,image/webp" multiple />
+        <div class="note small">Max 10 images. Max 10 MB each. Allowed: jpg, png, webp.</div>
+        <div class="images-preview" id="imagesPreview"></div>
+        <div class="error" id="err-images"></div>
+
+        <div class="actions">
+          <button type="button" id="generatePdfBtn">Generate PDF (Download)</button>
+          <button type="button" class="secondary" id="resetBtn">Reset</button>
+          <div style="flex:1"></div>
+          <div id="formMessage" class="small"></div>
+        </div>
+        <button type="button" onclick="submitForm()">Submit</button>
+      </form>
+    </section>
+
+    <!-- Right: PDF preview area -->
+    <aside class="card pdf-card">
+      <div class="meta">
+        <div>
+          <h3 style="margin:0">PDF Preview</h3>
+          <div class="small">This will be the content in the generated PDF.</div>
+        </div>
+        <div class="small">Static demo • client-side</div>
+      </div>
+
+      <div id="pdfContent" style="padding:8px;border-radius:8px;background:#fafbff;overflow:auto;">
+        <div style="text-align:center;padding:8px 0;">
+          <strong>Site Enquiry Report</strong><br>
+          <span class="small" id="pdfDate"></span>
+        </div>
+        <div id="pdfDetails">
+          <div class="field-row"><b>Name:</b> <span id="pd-name">—</span></div>
+          <div class="field-row"><b>Email:</b> <span id="pd-email">—</span></div>
+          <div class="field-row"><b>Phone:</b> <span id="pd-phone">—</span></div>
+          <div style="margin-top:6px"></div>
+          <div class="field-row"><b>Address:</b> <span id="pd-address">—</span></div>
+          <div class="field-row"><b>Measurements:</b> <span id="pd-measurements">—</span></div>
+          <div class="field-row"><b>Estimated Cost:</b> <span id="pd-cost">—</span></div>
+        </div>
+
+        <div style="margin-top:8px">
+          <div><b>Images</b></div>
+          <div id="pd-images" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+        </div>
+
+        <div style="margin-top:8px">
+          <div><b>Notes</b></div>
+          <div id="pd-notes" style="min-height:40px;color:var(--muted)">—</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px;">
+        <div class="note small">Tip: The generated PDF will include the text fields and the images shown above. For sending via email from server, you can POST the JSON + images to an API which generates and emails the PDF.</div>
+      </div>
+    </aside>
+  </main>
+
+</div>
+
+<script>
+(function(){
+  // Basic constraints matching earlier JSON Schema
+  const MAX_IMAGES = 10;
+  const MAX_IMAGE_BYTES = 10_485_760; // 10 MB
+  const ALLOWED_MIMES = ["image/jpeg","image/png","image/webp"];
+  const form = document.getElementById('enquiryForm');
+  const imagesInput = document.getElementById('images');
+  const imagesPreview = document.getElementById('imagesPreview');
+  const generatePdfBtn = document.getElementById('generatePdfBtn');
+  const resetBtn = document.getElementById('resetBtn');
+  const formMessage = document.getElementById('formMessage');
+
+  // PDF preview elements
+  const pdName = document.getElementById('pd-name');
+  const pdEmail = document.getElementById('pd-email');
+  const pdPhone = document.getElementById('pd-phone');
+  const pdAddress = document.getElementById('pd-address');
+  const pdMeasurements = document.getElementById('pd-measurements');
+  const pdCost = document.getElementById('pd-cost');
+  const pdImages = document.getElementById('pd-images');
+  const pdNotes = document.getElementById('pd-notes');
+  const pdfDate = document.getElementById('pdfDate');
+
+  // Keep images in memory as dataURL objects
+  let imagesData = [];
+
+  function setError(id,msg){
+    const el = document.getElementById('err-'+id);
+    if(!el) return;
+    el.textContent = msg || '';
+  }
+
+  function clearErrors(){
+    ['customerName','email','phone','address_line1','city','state','postalCode','country','length','width','images'].forEach(id=>setError(id,''));
+    formMessage.textContent = '';
+  }
+
+  function validateForm(){
+    clearErrors();
+    let ok = true;
+    const name = document.getElementById('customerName').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const address1 = document.getElementById('address_line1').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const state = document.getElementById('state').value.trim();
+    const postalCode = document.getElementById('postalCode').value.trim();
+    const country = document.getElementById('country').value.trim();
+    const length = document.getElementById('length').value;
+    const width = document.getElementById('width').value;
+
+    // name: 2..100 letters/digits/ .,'-
+    if(name.length < 2 || name.length > 100) { setError('customerName','Name must be 2–100 characters'); ok=false; }
+    if(!/^[\p{L}0-9 .,'-]+$/u.test(name)) { setError('customerName','Name contains invalid characters'); ok=false; }
+
+    // email using simple pattern (browser will also check type=email)
+    if(!email || email.length>254) { setError('email','Valid email is required'); ok=false; }
+    // phone: allow + digits spaces parentheses hyphen, 7-20 chars
+    if(!/^[+0-9 ()-]{7,20}$/.test(phone)) { setError('phone','Phone must be 7–20 digits / symbols (+, -, space)'); ok=false; }
+
+    // address
+    if(address1.length < 3 || address1.length > 200){ setError('address_line1','Address is required (3–200 chars)'); ok=false; }
+    if(city.length < 1 || city.length > 100){ setError('city','City is required'); ok=false; }
+    if(state.length < 1 || state.length > 100){ setError('state','State is required'); ok=false; }
+    if(!/^[A-Za-z0-9 -]{3,12}$/.test(postalCode)) { setError('postalCode','Postal code looks invalid'); ok=false; }
+    if(country.length < 2 || country.length > 100){ setError('country','Country is required'); ok=false; }
+
+    // measurements
+    if(!(parseFloat(length) > 0 && parseFloat(length) <= 10000)){ setError('length','Length must be positive and reasonable'); ok=false; }
+    if(!(parseFloat(width) > 0 && parseFloat(width) <= 10000)){ setError('width','Width must be positive and reasonable'); ok=false; }
+
+    // images
+    if(imagesData.length < 1){ setError('images','At least one image is required'); ok=false; }
+    if(imagesData.length > MAX_IMAGES){ setError('images','Max ' + MAX_IMAGES + ' images'); ok=false; }
+
+    return ok;
+  }
+
+  // update PDF preview with current values
+  function refreshPreview(){
+    pdfDate.textContent = new Date().toLocaleString();
+    pdName.textContent = document.getElementById('customerName').value || '—';
+    pdEmail.textContent = document.getElementById('email').value || '—';
+    pdPhone.textContent = document.getElementById('phone').value || '—';
+    const addr = [
+      document.getElementById('address_line1').value,
+      document.getElementById('city').value,
+      document.getElementById('state').value,
+      document.getElementById('postalCode').value,
+      document.getElementById('country').value
+    ].filter(Boolean).join(', ');
+    pdAddress.textContent = addr || '—';
+    const len = document.getElementById('length').value;
+    const wid = document.getElementById('width').value;
+    const ht = document.getElementById('height').value;
+    const units = document.getElementById('units').value;
+    let meas = `${len} × ${wid}`;
+    if(ht) meas += ` × ${ht}`;
+    meas += ` ${units}`;
+    pdMeasurements.textContent = meas;
+    const cost = document.getElementById('estimatedCost').value;
+    pdCost.textContent = cost ? (cost) : '—';
+    pdNotes.textContent = document.getElementById('notes').value || '—';
+
+    // images
+    pdImages.innerHTML = '';
+    imagesData.forEach((img, idx) => {
+      const node = document.createElement('div');
+      node.style.width = '86px';
+      node.style.height = '86px';
+      node.style.border = '1px solid #e9eef7';
+      node.style.borderRadius = '8px';
+      node.style.overflow = 'hidden';
+      node.style.background = '#fff';
+      node.style.display = 'flex';
+      node.style.alignItems = 'center';
+      node.style.justifyContent = 'center';
+      node.style.boxSizing = 'border-box';
+      const i = document.createElement('img');
+      i.src = img.dataURL;
+      i.style.width = '100%';
+      i.style.height = '100%';
+      i.style.objectFit = 'cover';
+      node.appendChild(i);
+      pdImages.appendChild(node);
+    });
+  }
+
+  imagesInput.addEventListener('change', async function(ev){
+    const files = Array.from(ev.target.files || []);
+    imagesPreview.innerHTML = '';
+    imagesData = [];
+    setError('images','');
+    if(files.length === 0) return;
+    if(files.length > MAX_IMAGES){
+      setError('images','Maximum ' + MAX_IMAGES + ' files allowed');
+      imagesInput.value = '';
+      return;
+    }
+    for(const f of files){
+      if(!ALLOWED_MIMES.includes(f.type)){
+        setError('images','Only jpg, png, webp allowed');
+        continue;
+      }
+      if(f.size > MAX_IMAGE_BYTES){
+        setError('images','Each image must be ≤ 10 MB');
+        continue;
+      }
+
+      // read as dataURL
+      const dataURL = await new Promise((res,rej)=>{
+        const r = new FileReader();
+        r.onload = ()=>res(r.result);
+        r.onerror = ()=>rej(new Error('File read error'));
+        r.readAsDataURL(f);
+      });
+
+      const idx = imagesData.length;
+      imagesData.push({ filename: f.name, mimeType: f.type, size: f.size, dataURL });
+
+      // thumbnail
+      const thumb = document.createElement('div');
+      thumb.className = 'img-thumb';
+      const img = document.createElement('img');
+      img.src = dataURL;
+      thumb.appendChild(img);
+      const rem = document.createElement('div');
+      rem.className = 'remove';
+      rem.textContent = '×';
+      rem.title = 'Remove';
+      rem.addEventListener('click', () => {
+        imagesData.splice(idx,1);
+        // rebuild preview
+        imagesInput.value = '';
+        const dt = new DataTransfer();
+        // cannot reconstruct files efficiently in client - keep imagesData synced
+        rebuildThumbs();
+        refreshPreview();
+      });
+      thumb.appendChild(rem);
+      imagesPreview.appendChild(thumb);
+    }
+    refreshPreview();
+  });
+
+  function rebuildThumbs(){
+    imagesPreview.innerHTML = '';
+    imagesData.forEach((imgObj, ii)=>{
+      const thumb = document.createElement('div');
+      thumb.className = 'img-thumb';
+      const img = document.createElement('img');
+      img.src = imgObj.dataURL;
+      thumb.appendChild(img);
+      const rem = document.createElement('div');
+      rem.className = 'remove';
+      rem.textContent = '×';
+      rem.title = 'Remove';
+      rem.addEventListener('click', () => {
+        imagesData.splice(ii,1);
+        rebuildThumbs();
+        refreshPreview();
+      });
+      thumb.appendChild(rem);
+      imagesPreview.appendChild(thumb);
+    });
+  }
+
+  // update preview live for common fields
+  document.querySelectorAll('#enquiryForm input,#enquiryForm textarea,#enquiryForm select').forEach(el=>{
+    el.addEventListener('input', ()=> refreshPreview());
+  });
+
+  // Generate PDF using html2canvas + jsPDF
+  generatePdfBtn.addEventListener('click', async ()=>{
+    formMessage.textContent = '';
+    if(!validateForm()){
+      formMessage.style.color = '#b00020';
+      formMessage.textContent = 'Please fix the form errors above.';
+      return;
+    }
+    refreshPreview();
+    formMessage.style.color = '';
+    formMessage.textContent = 'Generating PDF...';
+
+    // Use html2canvas to render #pdfContent into canvas
+    const pdfEl = document.getElementById('pdfContent');
+    // temporarily set width for full-quality render
+    const originalWidth = pdfEl.style.width;
+    // render
+    try{
+      const canvas = await html2canvas(pdfEl, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        logging: false
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+      // create jsPDF (A4 portrait)
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({unit:'pt', format:'a4', compress:true});
+      // Calculate dimensions for A4
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+
+      // Fit image to page, keep margins
+      const margin = 28;
+      const availableW = pageWidth - margin*2;
+      const availableH = pageHeight - margin*2;
+
+      // compute scale
+      const img = new Image();
+      img.src = imgData;
+      await new Promise(r=>img.onload = r);
+      const imgW = img.width;
+      const imgH = img.height;
+      let renderW = availableW;
+      let renderH = (imgH * renderW) / imgW;
+      if(renderH > availableH){
+        renderH = availableH;
+        renderW = (imgW * renderH) / imgH;
+      }
+
+      pdf.addImage(imgData, 'JPEG', margin, margin, renderW, renderH, undefined, 'FAST');
+
+      // Optional: add a second page signature area if desired
+      // pdf.addPage();
+      // pdf.text('Prepared by: Your Company Name', 40, 40);
+
+      // Save file
+      const nameVal = (document.getElementById('customerName').value || 'enquiry').trim().replace(/\s+/g,'_');
+      pdf.save(`site-enquiry-${nameVal}-${Date.now()}.pdf`);
+      formMessage.style.color = 'green';
+      formMessage.textContent = 'PDF ready — downloaded.';
+    }catch(err){
+      console.error(err);
+      formMessage.style.color = '#b00020';
+      formMessage.textContent = 'PDF generation failed. Try fewer/lower-resolution images.';
+    }
+  });
+
+  resetBtn.addEventListener('click',()=>{
+    if(!confirm('Clear form and images?')) return;
+    form.reset();
+    imagesPreview.innerHTML = '';
+    imagesData = [];
+    clearErrors();
+    refreshPreview();
+    formMessage.textContent = '';
+  });
+
+  // init preview date
+  pdfDate.textContent = new Date().toLocaleString();
+  refreshPreview();
+
+})();
+
+
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+    emailjs.init("IqzKLm7Md6MJmBxus"); // Public Key
+
+    async function submitForm() {
+        const name = document.getElementById("name").value;
+        const phone = document.getElementById("phone").value;
+        const address = document.getElementById("address").value;
+
+        if (!name || !phone || !address) {
+            alert("Please fill all required fields");
+            return;
+        }
+
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF();
+
+        // Title
+        pdf.setFontSize(18);
+        pdf.text("Site Measurement Report", 10, 10);
+
+        // Details
+        pdf.setFontSize(12);
+        pdf.text(`Name: ${name}`, 10, 25);
+        pdf.text(`Phone: ${phone}`, 10, 35);
+        pdf.text(`Address: ${address}`, 10, 45);
+
+        let y = 60;
+
+        // Add uploaded images
+        if (window.selectedFiles && selectedFiles.length > 0) {
+            for (let i = 0; i < selectedFiles.length; i++) {
+                const file = selectedFiles[i];
+                const base64 = await convertToBase64(file);
+
+                pdf.addImage(base64, "JPEG", 10, y, 180, 110);
+                y += 120;
+
+                if (y > 260) {
+                    pdf.addPage();
+                    y = 10;
+                }
+            }
+        }
+
+        // Create Base64 PDF
+        const pdfBase64 = pdf.output("datauristring").split(",")[1];
+
+        // FINAL EMAIL SEND
+        emailjs.send("service_psu05li", "template_c3u4d5h", {
+            name: name,
+            phone: phone,
+            address: address,
+            pdf_file: "data:application/pdf;base64," + pdfBase64
+        })
+        .then(() => {
+            alert("Form submitted & PDF sent successfully!");
+        })
+        .catch((error) => {
+            alert("Email sending failed: " + JSON.stringify(error));
+        });
+    }
+
+    // Convert image to Base64
+    function convertToBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    }
+</script>
+
+</body>
+</html>
