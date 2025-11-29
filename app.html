@@ -196,6 +196,20 @@
         </div>
         <button type="button" onclick="submitForm()">Submit</button>
       </form>
+      
+      <div style="margin-top:20px; text-align:center;">
+        <button type="button" id="logoutBtn" style="
+          background:#ff3b30;
+          border:none;
+          padding:10px 18px;
+          color:white;
+          border-radius:8px;
+          font-weight:700;
+          cursor:pointer;">
+          Logout
+        </button>
+      </div>
+      
     </section>
 
     <!-- Right: PDF preview area -->
@@ -618,6 +632,17 @@
             reader.onerror = (error) => reject(error);
         });
     }
+
+    // LOGOUT FUNCTION
+    document.getElementById("logoutBtn").addEventListener("click", function () {
+        // Clear ALL saved user data
+        localStorage.clear();
+    
+        alert("Logged out successfully!");
+    
+        // Redirect to login page
+        window.location.href = "login.html";  // ← change to your login page name
+    });
 </script>
 
 </body>
